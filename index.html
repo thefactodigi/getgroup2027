@@ -1,0 +1,597 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>GET · תכנית 2027</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rubik:wght@500;700;800;900&family=Heebo:wght@300;400;500;600;700;800&display=swap">
+<style>
+/* Layout: full-viewport RTL slide deck on a deep-space ground; each GET brand owns its color (Packing green, Moving blue, Storage orange) */
+:root{
+  color-scheme:dark;
+  --bg:#0A1230;--bg2:#101B45;--card:#132152;--card2:#1A2B63;
+  --line:rgba(170,195,255,.15);--text:#F2F6FF;--muted:#9FB0D6;
+  --pack:#8CC656;--move:#63B0F5;--store:#F19E4B;
+  --pack-dim:rgba(140,198,86,.15);--move-dim:rgba(99,176,245,.15);--store-dim:rgba(241,158,75,.15);
+  --display:'Rubik','Heebo',system-ui,sans-serif;--body:'Heebo','Rubik',system-ui,-apple-system,'Segoe UI',sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%}
+html{direction:rtl}
+body{font-family:var(--body);background:var(--bg);color:var(--text);overflow:hidden;font-size:16px}
+.backdrop{position:fixed;inset:0;pointer-events:none;z-index:0;background:
+  radial-gradient(1100px 760px at 88% -12%,rgba(99,176,245,.13),transparent 60%),
+  radial-gradient(900px 640px at 6% 112%,rgba(241,158,75,.10),transparent 60%),
+  radial-gradient(700px 500px at 50% 55%,rgba(140,198,86,.05),transparent 70%),var(--bg)}
+#stars{position:absolute;inset:0;width:100%;height:100%}
+
+.topbar{position:fixed;top:0;right:0;left:0;z-index:50;display:flex;align-items:center;justify-content:space-between;padding:calc(18px + env(safe-area-inset-top,0px)) 34px 18px;pointer-events:none}
+.brand{display:flex;align-items:baseline;gap:10px;direction:ltr}
+.brand .wm{font-family:var(--display);font-weight:900;font-size:26px;line-height:1;letter-spacing:.01em}
+.brand .wm i{font-style:normal}
+.brand .tg{font-weight:700;font-size:10px;letter-spacing:.3em;color:var(--muted)}
+.brandbar{display:flex;gap:6px}
+.brandbar span{width:22px;height:4px;border-radius:3px}
+.progress{position:fixed;top:0;right:0;height:3px;background:linear-gradient(270deg,var(--pack),var(--move),var(--store));z-index:60;transition:width .45s cubic-bezier(.4,0,.2,1)}
+.bottombar{position:fixed;bottom:0;right:0;left:0;z-index:50;display:flex;align-items:center;justify-content:space-between;padding:16px 34px calc(16px + env(safe-area-inset-bottom,0px))}
+.counter{font-size:13px;color:var(--muted);font-weight:500;letter-spacing:.08em;font-variant-numeric:tabular-nums}
+.counter b{color:var(--text);font-weight:700}
+.navbtns{display:flex;gap:10px}
+.navbtn{width:44px;height:44px;border-radius:50%;border:1px solid var(--line);background:rgba(19,33,82,.75);color:var(--text);font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;backdrop-filter:blur(6px);font-family:inherit}
+.navbtn:hover{border-color:var(--pack);color:var(--pack);transform:translateY(-2px)}
+.navbtn:focus-visible{outline:2px solid var(--pack);outline-offset:2px}
+.hint{font-size:11.5px;color:var(--muted);opacity:.75}
+
+.stage{position:relative;z-index:1;height:100%;width:100%}
+.slide{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:96px 72px 90px;opacity:0;visibility:hidden;transform:translateY(18px);transition:opacity .5s ease,transform .5s ease,visibility .5s}
+.slide.active{opacity:1;visibility:visible;transform:none}
+.inner{width:100%;max-width:1140px;min-width:0}
+.slide.active .rise{animation:rise .6s cubic-bezier(.2,.7,.3,1) both}
+.slide.active .d1{animation-delay:.08s}.slide.active .d2{animation-delay:.16s}.slide.active .d3{animation-delay:.24s}.slide.active .d4{animation-delay:.32s}
+@keyframes rise{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.slide{transition:opacity .3s}.slide.active .rise{animation:none}}
+
+/* brand color hooks */
+.pk{--c:var(--pack);--cd:var(--pack-dim)}
+.mv{--c:var(--move);--cd:var(--move-dim)}
+.st{--c:var(--store);--cd:var(--store-dim)}
+.cp{color:var(--pack)}.cm{color:var(--move)}.cs{color:var(--store)}
+
+.eyebrow{display:inline-flex;align-items:center;gap:10px;font-size:13px;font-weight:800;letter-spacing:.12em;color:var(--c,var(--pack));margin-bottom:18px}
+.eyebrow .tick{width:22px;height:2px;background:currentColor;border-radius:2px}
+h1,h2,.display{font-family:var(--display)}
+h1{font-size:clamp(40px,5.4vw,70px);font-weight:900;line-height:1.1;text-wrap:balance}
+h2{font-size:clamp(30px,3.5vw,44px);font-weight:800;line-height:1.18;margin-bottom:22px;text-wrap:balance}
+.hl{color:var(--c,var(--pack))}
+.lead{font-size:clamp(16px,1.55vw,19.5px);color:var(--muted);line-height:1.75;max-width:760px}
+.lead b{color:var(--text);font-weight:600}
+.cardrow{display:grid;gap:16px}
+.card{background:linear-gradient(180deg,var(--card),rgba(19,33,82,.55));border:1px solid var(--line);border-radius:16px;padding:22px 24px;min-width:0}
+.card h3{font-family:var(--display);font-size:17px;font-weight:700;margin-bottom:8px;line-height:1.35}
+.card p{font-size:14.5px;color:var(--muted);line-height:1.7}
+.card p b{color:var(--text);font-weight:600}
+.card.edge{border-color:color-mix(in srgb,var(--c) 45%,transparent)}
+.pill{display:inline-flex;align-items:center;gap:8px;padding:6px 13px;border-radius:999px;font-size:13px;font-weight:700;border:1px solid color-mix(in srgb,var(--c,var(--pack)) 45%,transparent);background:var(--cd,var(--pack-dim));color:var(--c,var(--pack));white-space:nowrap}
+.pill.plain{--c:var(--muted);background:rgba(19,33,82,.6);color:var(--text);border-color:var(--line)}
+ul.clean{list-style:none;display:grid;gap:13px}
+ul.clean li{display:flex;gap:14px;align-items:flex-start;font-size:16.5px;line-height:1.65}
+ul.clean li .mk{flex:none;font-weight:900;color:var(--c,var(--pack));font-size:18px;margin-top:1px}
+ul.clean li b{font-weight:700}
+.split{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.split>*{min-width:0}
+.statement{font-family:var(--display);font-size:clamp(19px,2vw,25px);font-weight:700;line-height:1.55}
+.quote{border-right:3px solid var(--c,var(--pack));padding:6px 20px 6px 0;font-size:clamp(17px,1.8vw,22px);font-weight:600;line-height:1.7}
+.footer-note{margin-top:20px;font-size:13.5px;color:var(--muted)}
+.mini{font-size:12.5px;color:var(--muted);letter-spacing:.12em;font-weight:700}
+.arrowheads{display:flex;align-items:center;justify-content:center;gap:6px;font-size:clamp(22px,2.4vw,30px);font-weight:900;line-height:1}
+.arrowheads .t{font-size:.6em;color:var(--muted);font-weight:600;margin:0 10px}
+
+.stat{display:flex;justify-content:space-between;align-items:baseline;gap:10px;padding:9px 0;border-bottom:1px solid rgba(170,195,255,.08)}
+.stat:last-child{border-bottom:none}
+.stat .k{font-size:13.5px;color:var(--muted);font-weight:500}
+.stat .v{font-family:var(--display);font-size:21px;font-weight:800;font-variant-numeric:tabular-nums;direction:ltr}
+.stat .v.c{color:var(--c)}
+.plat{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.soon{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:10px;min-height:150px;color:var(--muted);font-size:14.5px}
+.soon .ping{position:relative;width:12px;height:12px;border-radius:50%;background:var(--c)}
+.soon .ping::after{content:"";position:absolute;inset:-5px;border-radius:50%;border:1.5px solid var(--c);animation:ping 2.6s ease-out infinite}
+@keyframes ping{0%{transform:scale(.5);opacity:.9}100%{transform:scale(3);opacity:0}}
+@media (prefers-reduced-motion:reduce){.soon .ping::after{animation:none;opacity:.3}}
+.kpi{text-align:center;padding:24px 16px}
+.kpi .num{font-family:var(--display);font-size:clamp(30px,3.4vw,46px);font-weight:900;font-variant-numeric:tabular-nums;line-height:1.1;direction:ltr}
+.kpi .num .u{font-size:.55em;font-weight:800;color:var(--c,var(--pack))}
+.kpi .lbl{font-size:13.5px;color:var(--muted);margin-top:8px;font-weight:500}
+.bar{height:10px;border-radius:6px;background:rgba(170,195,255,.08);display:flex;overflow:hidden;margin-top:14px}
+.bar span{height:100%}
+
+.img{border-radius:14px;border:1px solid var(--line);width:100%;display:block;object-fit:cover;max-width:100%}
+.shadow{box-shadow:0 18px 50px rgba(0,0,12,.55)}
+.phone{height:clamp(260px,58vh,560px);width:auto;aspect-ratio:9/16;margin-inline:auto}
+.media-split{display:grid;grid-template-columns:1.35fr auto;gap:38px;align-items:center}
+.media-split>*{min-width:0}
+
+.flow{display:flex;align-items:stretch;justify-content:center;gap:10px;flex-wrap:wrap}
+.flow .step{background:linear-gradient(180deg,var(--card),rgba(19,33,82,.55));border:1px solid var(--line);border-radius:14px;padding:14px 18px;text-align:center;flex:1 1 150px;min-width:0}
+.flow .step .t{font-family:var(--display);font-size:clamp(16px,1.7vw,21px);font-weight:800;line-height:1.2;color:var(--c,var(--text))}
+.flow .step .s{font-size:12.5px;color:var(--muted);margin-top:6px;font-weight:500;line-height:1.5}
+.flow .arr{align-self:center;font-size:24px;font-weight:900;color:var(--muted)}
+
+.moves{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.move{position:relative;padding:20px 22px 20px}
+.move .n{font-family:var(--display);font-size:44px;font-weight:900;line-height:1;color:var(--c);opacity:.9}
+.move h3{margin:10px 0 6px;font-size:18px}
+.move p{font-size:13.5px}
+.movehead{display:flex;align-items:center;gap:18px;margin-bottom:6px}
+.movehead .n{font-family:var(--display);font-weight:900;font-size:clamp(54px,6vw,84px);line-height:.9;color:var(--c);opacity:.95}
+.values{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.values .card h3{display:flex;align-items:center;gap:8px;font-size:15px;color:var(--c)}
+.values .card p{font-size:14px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chat{display:grid;gap:10px;max-width:560px}
+.bubble{padding:11px 16px;border-radius:16px;font-size:15px;line-height:1.55;max-width:88%}
+.bubble.q{background:rgba(170,195,255,.09);border:1px solid var(--line);color:var(--muted);justify-self:start;border-bottom-right-radius:4px}
+.bubble.a{background:var(--pack-dim);border:1px solid rgba(140,198,86,.4);color:var(--text);justify-self:end;border-bottom-left-radius:4px;font-weight:600}
+.vs{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.vs .card{font-size:clamp(16px,1.7vw,20px);font-weight:600;line-height:1.55}
+.vs .card .k{display:block;font-size:12.5px;letter-spacing:.1em;font-weight:800;margin-bottom:8px}
+.vs .no{color:var(--muted);text-decoration:line-through;text-decoration-color:rgba(241,158,75,.6)}
+.statrow{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.logo-round{width:74px;height:74px;border-radius:50%;flex:none;border:2px solid var(--line)}
+.cover-img{width:100%;max-width:820px;aspect-ratio:16/9;object-fit:cover;border-radius:18px;margin:0 auto;display:block;border:1px solid var(--line)}
+.trio{display:flex;justify-content:center;gap:10px;flex-wrap:wrap}
+
+@media (max-width:860px){
+  .slide{padding:76px 16px 86px;align-items:flex-start;overflow-y:auto;-webkit-overflow-scrolling:touch}
+  .inner{padding-bottom:14px}
+  .split,.values,.vs,.media-split{grid-template-columns:1fr!important}
+  h1{font-size:34px} h2{font-size:26px;margin-bottom:16px}
+  .lead{font-size:15px}
+  .cardrow{grid-template-columns:1fr!important;gap:12px}
+  .moves{grid-template-columns:1fr 1fr}
+  .statrow{grid-template-columns:1fr 1fr}
+  .card{padding:16px 16px}
+  .kpi .num{font-size:28px!important}
+  ul.clean li{font-size:14.5px}
+  .phone{height:auto;width:min(260px,70%)}
+  .movehead .n{font-size:48px}
+  .topbar{padding-left:16px;padding-right:16px}
+  .bottombar{padding-left:16px;padding-right:16px;background:linear-gradient(0deg,rgba(10,18,48,.94),transparent)}
+  .hint{display:none}
+  .flow .arr{display:none}
+  .flow .step{flex-basis:40%}
+}
+</style>
+</head>
+<body>
+
+<div class="backdrop"><canvas id="stars"></canvas></div>
+<div class="progress" id="progress"></div>
+<div class="topbar">
+  <div class="brand"><span class="wm"><i class="cp">G</i><i class="cm">E</i><i class="cs">T</i></span><span class="tg">GROUP · 2027</span></div>
+  <div class="brandbar" aria-hidden="true"><span style="background:var(--pack)"></span><span style="background:var(--move)"></span><span style="background:var(--store)"></span></div>
+</div>
+
+<div class="stage" id="stage">
+
+<!-- 1 · שער -->
+<section class="slide active">
+  <div class="inner" style="text-align:center">
+    <div class="mini rise">קבוצת גט · תכנית סושיאל שנתית · 2027</div>
+    <h1 class="rise d1" style="margin:14px auto 20px;max-width:900px">תכנית 2027:<br><span class="cp">מתארגזים לחלל</span></h1>
+    <img class="cover-img shadow rise d2" src="img/cover.jpg" alt="קבוצת גט: ד״ר מוב, אוגי והדייר של Get Storage מול משאיות וקרטונים">
+    <div class="trio rise d3" style="margin-top:20px">
+      <span class="pill pk" style="--c:var(--pack);--cd:var(--pack-dim)">Get Packing</span>
+      <span class="pill" style="--c:var(--move);--cd:var(--move-dim)">Get Moving</span>
+      <span class="pill" style="--c:var(--store);--cd:var(--store-dim)">Get Storage</span>
+    </div>
+  </div>
+</section>
+
+<!-- 2 · שער פרק -->
+<section class="slide">
+  <div class="inner" style="text-align:center">
+    <div class="eyebrow rise" style="display:flex;justify-content:center"><span class="tick"></span>פתיחה</div>
+    <h1 class="rise d1" style="margin:10px auto 18px;max-width:980px">לפני שמדברים על 2027:<br><span class="cp">מה עשינו ב-2026</span></h1>
+  </div>
+</section>
+
+<!-- 3 · סיכום קבוצה -->
+<section class="slide">
+  <div class="inner">
+    <div class="eyebrow rise"><span class="tick"></span>תוצאות · שלושת המותגים יחד</div>
+    <h2 class="rise d1" style="margin-bottom:10px">קבוצת גט: <span class="hl">למעלה מ-26 מיליון צפיות</span></h2>
+    <p class="lead rise d1" style="margin-bottom:22px">סיכום של Get Packing, ‏Get Moving ו-Get Storage בפייסבוק, באינסטגרם ובטיקטוק.</p>
+    <div class="statrow rise d2">
+      <div class="card kpi edge pk"><div class="num"><span class="count" data-to="26.4" data-dec="1">0</span><span class="u">M</span></div><div class="lbl">צפיות</div></div>
+      <div class="card kpi mv"><div class="num"><span class="count" data-to="3.8" data-dec="1">0</span><span class="u">M</span></div><div class="lbl">ריץ׳ (פייסבוק + אינסטגרם)</div></div>
+      <div class="card kpi st"><div class="num"><span class="count" data-to="32811" data-sep="1">0</span></div><div class="lbl">אינטראקציות</div></div>
+      <div class="card kpi pk"><div class="num"><span class="count" data-to="2314" data-sep="1">0</span></div><div class="lbl">עוקבים</div></div>
+    </div>
+    <div class="card rise d3" style="margin-top:16px;padding:18px 22px">
+      <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;font-size:13.5px;color:var(--muted)"><span>חלוקת הצפיות לפי מותג</span><span style="direction:ltr;font-variant-numeric:tabular-nums"><b class="cp">17.4M</b> · <b class="cs">5.7M</b> · <b class="cm">3.3M</b></span></div>
+      <div class="bar"><span style="width:65.9%;background:var(--pack)"></span><span style="width:21.6%;background:var(--store)"></span><span style="width:12.5%;background:var(--move)"></span></div>
+      <div style="display:flex;gap:18px;flex-wrap:wrap;margin-top:10px;font-size:12.5px;color:var(--muted)"><span><b class="cp">●</b> Get Packing</span><span><b class="cs">●</b> Get Storage</span><span><b class="cm">●</b> Get Moving</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- 4 · Get Packing -->
+<section class="slide pk">
+  <div class="inner">
+    <div class="eyebrow rise"><span class="tick"></span>תוצאות · נתוני סושיאל</div>
+    <h2 class="rise d1" style="margin-bottom:18px"><span class="hl">Get Packing</span>: המותג המוביל בחשיפה</h2>
+    <div class="cardrow rise d2" style="grid-template-columns:repeat(3,1fr)">
+      <div class="card"><div class="plat"><span class="pill">פייסבוק</span></div>
+        <div class="stat"><span class="k">צפיות</span><span class="v c"><span class="count" data-to="11.4" data-dec="1">0</span>M</span></div>
+        <div class="stat"><span class="k">ריץ׳</span><span class="v"><span class="count" data-to="1.5" data-dec="1">0</span>M</span></div>
+        <div class="stat"><span class="k">אינטראקציות</span><span class="v"><span class="count" data-to="5800" data-sep="1">0</span></span></div>
+        <div class="stat"><span class="k">עוקבים</span><span class="v"><span class="count" data-to="526">0</span></span></div></div>
+      <div class="card"><div class="plat"><span class="pill">אינסטגרם</span></div>
+        <div class="stat"><span class="k">צפיות</span><span class="v c"><span class="count" data-to="3.8" data-dec="1">0</span>M</span></div>
+        <div class="stat"><span class="k">ריץ׳</span><span class="v"><span class="count" data-to="712" >0</span>K</span></div>
+        <div class="stat"><span class="k">אינטראקציות</span><span class="v"><span class="count" data-to="6300" data-sep="1">0</span></span></div>
+        <div class="stat"><span class="k">עוקבים</span><span class="v"><span class="count" data-to="664">0</span></span></div></div>
+      <div class="card"><div class="plat"><span class="pill">טיקטוק</span></div>
+        <div class="stat"><span class="k">צפיות</span><span class="v c"><span class="count" data-to="2.2" data-dec="1">0</span>M</span></div>
+        <div class="stat"><span class="k">אינטראקציות</span><span class="v"><span class="count" data-to="3440" data-sep="1">0</span></span></div>
+        <div class="stat"><span class="k">עוקבים</span><span class="v"><span class="count" data-to="270">0</span></span></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- 5 · Get Storage -->
+<section class="slide st">
+  <div class="inner">
+    <div class="eyebrow rise"><span class="tick"></span>תוצאות · נתוני סושיאל</div>
+    <h2 class="rise d1" style="margin-bottom:18px"><span class="hl">Get Storage</span>: נוכחות חזקה בשלוש הפלטפורמות</h2>
+    <div class="cardrow rise d2" style="grid-template-columns:repeat(3,1fr)">
+      <div class="card"><div class="plat"><span class="pill">פייסבוק</span></div>
+        <div class="stat"><span class="k">צפיות</span><span class="v c"><span class="count" data-to="2.4" data-dec="1">0</span>M</span></div>
+        <div class="stat"><span class="k">ריץ׳</span><span class="v"><span class="count" data-to="734.4" data-dec="1">0</span>K</span></div>
+        <div class="stat"><span class="k">אינטראקציות</span><span class="v"><span class="count" data-to="6600" data-sep="1">0</span></span></div>
+        <div class="stat"><span class="k">עוקבים</span><span class="v"><span class="count" data-to="281">0</span></span></div></div>
+      <div class="card"><div class="plat"><span class="pill">אינסטגרם</span></div>
+        <div class="stat"><span class="k">צפיות</span><span class="v c"><span class="count" data-to="1" data-dec="1">0</span>M</span></div>
+        <div class="stat"><span class="k">ריץ׳</span><span class="v"><span class="count" data-to="319.4" data-dec="1">0</span>K</span></div>
+        <div class="stat"><span class="k">אינטראקציות</span><span class="v"><span class="count" data-to="6200" data-sep="1">0</span></span></div>
+        <div class="stat"><span class="k">עוקבים</span><span class="v"><span class="count" data-to="210">0</span></span></div></div>
+      <div class="card"><div class="plat"><span class="pill">טיקטוק</span></div>
+        <div class="stat"><span class="k">צפיות</span><span class="v c"><span class="count" data-to="2.3" data-dec="1">0</span>M</span></div>
+        <div class="stat"><span class="k">אינטראקציות</span><span class="v"><span class="count" data-to="2804" data-sep="1">0</span></span></div>
+        <div class="stat"><span class="k">עוקבים</span><span class="v"><span class="count" data-to="157">0</span></span></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- 6 · Get Moving -->
+<section class="slide mv">
+  <div class="inner">
+    <div class="eyebrow rise"><span class="tick"></span>תוצאות · נתוני סושיאל</div>
+    <h2 class="rise d1" style="margin-bottom:18px"><span class="hl">Get Moving</span>: בסיס יציב, וטיקטוק בדרך</h2>
+    <div class="cardrow rise d2" style="grid-template-columns:repeat(3,1fr)">
+      <div class="card"><div class="plat"><span class="pill">פייסבוק</span></div>
+        <div class="stat"><span class="k">צפיות</span><span class="v c"><span class="count" data-to="2.4" data-dec="1">0</span>M</span></div>
+        <div class="stat"><span class="k">ריץ׳</span><span class="v"><span class="count" data-to="360.5" data-dec="1">0</span>K</span></div>
+        <div class="stat"><span class="k">אינטראקציות</span><span class="v"><span class="count" data-to="986">0</span></span></div>
+        <div class="stat"><span class="k">עוקבים</span><span class="v"><span class="count" data-to="125">0</span></span></div></div>
+      <div class="card"><div class="plat"><span class="pill">אינסטגרם</span></div>
+        <div class="stat"><span class="k">צפיות</span><span class="v c"><span class="count" data-to="915">0</span>K</span></div>
+        <div class="stat"><span class="k">ריץ׳</span><span class="v"><span class="count" data-to="183.7" data-dec="1">0</span>K</span></div>
+        <div class="stat"><span class="k">אינטראקציות</span><span class="v"><span class="count" data-to="681">0</span></span></div>
+        <div class="stat"><span class="k">עוקבים</span><span class="v"><span class="count" data-to="81">0</span></span></div></div>
+      <div class="card"><div class="plat"><span class="pill">טיקטוק</span></div>
+        <div class="soon"><span class="ping"></span><b style="color:var(--text);font-size:16px">עלה רק החודש</b>החשבון נפתח עכשיו, והנתונים הראשונים יגיעו בקרוב.</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- 7 · מתארגזים לחלל -->
+<section class="slide">
+  <div class="inner media-split">
+    <div>
+      <div class="eyebrow rise"><span class="tick"></span>מהנתונים אל התכנית</div>
+      <h2 class="rise d1">ב-2027 אנחנו <span class="hl">מתארגזים לחלל!</span></h2>
+      <p class="lead rise d2" style="margin-bottom:14px">במהלך השנים נבנו לכל מותג של GET שפה ודמות משלו: <b class="cp">אוגי</b> ב-Get Packing, <b class="cm">ד״ר מוב</b> ב-Get Moving <b class="cs">והדייר</b> של Get Storage.</p>
+      <p class="lead rise d2" style="margin-bottom:22px">ב-2027 אנחנו מציעים לקחת את הנכסים האלה ולהרחיב אותם לעולמות תוכן גדולים יותר: סדרות, פורמטים קבועים, שיתופי פעולה עם יוצרים ותוכן שמחבר בין שלושת המותגים.</p>
+      <p class="quote rise d3">המטרה היא לא עוד פוסטים. המטרה היא לבנות ל-GET <span class="hl">נכסי תוכן שאנשים מזהים, מחכים להם</span> וחוזרים אליהם.</p>
+    </div>
+    <img class="img shadow rise d2" src="img/rocket.jpg" alt="אוגי טס בחללית קרטון מעל כדור הארץ" style="height:clamp(260px,62vh,560px);width:auto;aspect-ratio:4/5;margin-inline:auto">
+  </div>
+</section>
+
+<!-- 8 · 6 מהלכים -->
+<section class="slide">
+  <div class="inner">
+    <div class="eyebrow rise"><span class="tick"></span>התכנית</div>
+    <h2 class="rise d1" style="margin-bottom:18px"><span class="hl">6 מהלכים</span> להמראה בטוחה אל היעד העסקי</h2>
+    <div class="moves rise d2">
+      <div class="card move edge pk"><div class="n">01</div><h3>GET Universe</h3><p>אוגי, ד״ר מוב והדייר נפגשים לראשונה בעולם תוכן משותף, עם קרוסאוברים ועלילות מתמשכות.</p></div>
+      <div class="card move mv"><div class="n">02</div><h3>עוברים עם GET</h3><p>סדרת דוקו על אנשים אמיתיים ברגעי מעבר ושינוי, ו-GET משתלבת בתוך הסיפור.</p></div>
+      <div class="card move st"><div class="n">03</div><h3>GET Moving Club</h3><p>שיתופי פעולה עם משפיענים בדיוק כשהם עוברים דירה, משפצים או משנים בית.</p></div>
+      <div class="card move pk"><div class="n">04</div><h3>זה פרקטי × GET</h3><p>שיתוף פעולה קבוע עם שחר לוי: תוכן שימושי על אריזה, בית, אחסון ומעבר.</p></div>
+      <div class="card move edge st"><div class="n">05</div><h3>Get Storage Sitcom</h3><p>הדייר מקבל שכנים ודמויות קבועות, והמחסנים הופכים לסדרת קומדיה מתמשכת.</p></div>
+      <div class="card move pk"><div class="n">06</div><h3>אוגי מתארח</h3><p>פורמט ריאיונות הומוריסטי: בכל פרק אורח אחר מראיין את אוגי.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- 9 · מהלך 1 -->
+<section class="slide pk">
+  <div class="inner media-split">
+    <div>
+      <div class="movehead rise"><span class="n">1</span><div><div class="eyebrow" style="margin:0">מהלך 1 מתוך 6</div><h2 style="margin:4px 0 0">היקום של <span class="hl">GET</span></h2></div></div>
+      <p class="statement rise d1" style="margin:12px 0 16px">שלושה מותגים. שלוש דמויות. עולם תוכן אחד.</p>
+      <ul class="clean rise d2">
+        <li><span class="mk">‹</span><span>עד היום אוגי, ד״ר מוב והדייר של Get Storage חיים כל אחד בעולם משלו. ב-2027 נחבר ביניהם לראשונה ונייצר את <b>GET Universe</b>: סדרת קרוסאוברים סביב סיטואציות אמיתיות מעולם המעבר.</span></li>
+        <li><span class="mk">‹</span><span><b>לדוגמה:</b> מישהו מחליט לעבור דירה. אוגי משתלט על האריזה, ד״ר מוב מאבחן את מצב המעבר, ובסוף המסע הוא מגיע למחסן ופוגש את הדייר.</span></li>
+        <li><span class="mk">‹</span><span>במקום שלושה עמודים נפרדים, הצופה ירגיש שיש <b>משפחת GET אחת</b> עם עולם, דמויות וחוקים משלה.</span></li>
+      </ul>
+    </div>
+    <img class="img shadow phone rise d3" src="img/universe.jpg" alt="ד״ר מוב, אוגי והדייר נפגשים בבלגן של מעבר דירה">
+  </div>
+</section>
+
+<!-- 10 · מהלך 1 בפועל -->
+<section class="slide pk">
+  <div class="inner">
+    <div class="eyebrow rise"><span class="tick"></span>מהלך 1 · איך זה יעבוד בפועל</div>
+    <h2 class="rise d1" style="margin-bottom:10px">אירוע תוכן גדול <span class="hl">אחת לחודשיים</span></h2>
+    <p class="lead rise d1" style="margin-bottom:20px">לכל פרק תסריט מרכזי, הפקה ייעודית ושילוב של Live Action ו-AI בהתאם לדמויות. מהפקה אחת יוצאים:</p>
+    <div class="flow rise d2" style="margin-bottom:20px">
+      <div class="step"><div class="t">פרק קרוסאובר</div><div class="s">הפקה אחת</div></div>
+      <span class="arr">←</span>
+      <div class="step"><div class="t cp">Reels ו-TikToks</div><div class="s">קטעים קצרים לכל ערוץ</div></div>
+      <span class="arr">←</span>
+      <div class="step"><div class="t cm">קטעי תגובה</div><div class="s">של כל אחת מהדמויות</div></div>
+      <span class="arr">←</span>
+      <div class="step"><div class="t cs">טיזרים</div><div class="s">לפני כל פרק</div></div>
+    </div>
+    <div class="values rise d3">
+      <div class="card"><h3>הערך העסקי</h3><p>לקוח שמכיר את Get Packing נחשף באופן טבעי גם ל-Get Moving ול-Get Storage, ולהפך. כך GET נתפסת <b>כפתרון כולל לעולם המעבר</b> ולא כשלושה שירותים נפרדים.</p></div>
+      <div class="card"><h3>הערך הסושיאלי</h3><p>נכסי תוכן משותפים וחזקים יותר, זכירות גבוהה לדמויות וציפייה לפרק הבא. קרוסאוברים מייצרים רגעים גדולים יותר, מצחיקים יותר ו<b>Shareable</b> יותר.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- 11 · מהלך 2 -->
+<section class="slide mv">
+  <div class="inner media-split">
+    <div>
+      <div class="movehead rise"><span class="n">2</span><div><div class="eyebrow" style="margin:0">מהלך 2 מתוך 6</div><h2 style="margin:4px 0 0">"<span class="hl">עוברים</span>": סדרת הדוקו של GET</h2></div></div>
+      <p class="statement rise d1" style="margin:12px 0 12px">מאחורי כל מעבר דירה יש סיפור.</p>
+      <p class="lead rise d1" style="margin-bottom:14px">אנשים עוברים כי הם מתחילים זוגיות, מקימים משפחה, חוזרים מחו״ל או פותחים פרק חדש. בכל פרק נלווה אדם, זוג או משפחה מהבית הישן ועד לרגע שבו מתחיל הפרק הבא. <b>GET נוכחת לאורך הדרך, אבל הסיפור שייך לאנשים.</b></p>
+      <div class="mini rise d2" style="margin-bottom:10px">דוגמאות לפרקים</div>
+      <div class="chips rise d2">
+        <span class="pill">זוג שעובר לגור יחד לראשונה</span>
+        <span class="pill">משפחה שגדלה אחרי לידה</span>
+        <span class="pill">חוזרים מרילוקיישן</span>
+        <span class="pill">מחכים לדירה ומאחסנים את הבית</span>
+        <span class="pill">עוזב דירת רווקים אחרי עשר שנים</span>
+      </div>
+    </div>
+    <img class="img shadow phone rise d3" src="img/ovrim.jpg" alt="עוברים עם GET, פרק 01: זוג בדירה הראשונה שלהם">
+  </div>
+</section>
+
+<!-- 12 · מהלך 2 תוכן -->
+<section class="slide mv">
+  <div class="inner">
+    <div class="eyebrow rise"><span class="tick"></span>מהלך 2 · מכפיל התוכן</div>
+    <h2 class="rise d1" style="margin-bottom:18px">מסיפור אחד <span class="hl">לעולם שלם של תוכן</span></h2>
+    <div class="cardrow rise d2" style="grid-template-columns:repeat(4,1fr);margin-bottom:16px">
+      <div class="card edge"><span class="pill">6–10</span><h3 style="margin-top:12px">Reels / TikToks</h3><p>רגעים מצחיקים, מרגשים ומזוהים מתוך המעבר.</p></div>
+      <div class="card"><span class="pill plain">לפני / אחרי</span><h3 style="margin-top:12px">Before / After</h3><p>הבית הישן, תהליך המעבר והבית החדש.</p></div>
+      <div class="card"><span class="pill plain">מאחורי הקלעים</span><h3 style="margin-top:12px">Behind the Scenes</h3><p>הרגעים הלא מתוכננים של יום המעבר.</p></div>
+      <div class="card"><span class="pill plain">פיד וסטוריז</span><h3 style="margin-top:12px">סטילס וציטוטים</h3><p>לשימוש בפיד וב-Stories.</p></div>
+    </div>
+    <div class="values rise d3">
+      <div class="card"><h3>הערך העסקי</h3><p>שירותי GET מופיעים בתוך סיטואציה אמיתית שבה הצורך בהם ברור, בלי לעצור את התוכן כדי למכור. GET נתפסת כמותג <b>שמלווה אנשים בתקופות של שינוי</b>.</p></div>
+      <div class="card"><h3>הערך הסושיאלי</h3><p>תוכן אנושי ורגשי מעבר להומור ולמוצר. סיפורים אמיתיים מייצרים הזדהות, <b>זמן צפייה גבוה יותר</b>, שיתופים ותגובות, ומגיעים לקהלים חדשים.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- 13 · מהלך 3 -->
+<section class="slide st">
+  <div class="inner media-split">
+    <div>
+      <div class="movehead rise"><span class="n">3</span><div><div class="eyebrow" style="margin:0">מהלך 3 מתוך 6</div><h2 style="margin:4px 0 0"><span class="hl">GET Moving Club</span></h2></div></div>
+      <p class="statement rise d1" style="margin:12px 0 12px">משפיענים, בדיוק ברגע שבו GET באמת רלוונטית.</p>
+      <p class="lead rise d1" style="margin-bottom:18px">במקום רשימת משפיענים קבועה מראש, נאתר לאורך השנה יוצרים <b>שנמצאים באמת במהלך מעבר</b>: דירה חדשה, שיפוץ, מעבר לגור ביחד, חזרה מרילוקיישן. GET נכנסת לסיפור שהם כבר משתפים.</p>
+      <div class="mini rise d2" style="margin-bottom:10px">כך ייראה שיתוף הפעולה</div>
+      <div class="flow rise d2" style="justify-content:flex-start">
+        <div class="step pk"><div class="t">לפני המעבר</div><div class="s">Get Packing · אריזה, קרטונים והכנות</div></div>
+        <div class="step mv"><div class="t">ביום המעבר</div><div class="s">Get Moving · המעבר והרגעים בדרך</div></div>
+        <div class="step st"><div class="t">במידת הצורך</div><div class="s">Get Storage · פתרון ביניים ושיפוץ</div></div>
+        <div class="step"><div class="t">אחרי המעבר</div><div class="s">Unpacking והיום הראשון בבית</div></div>
+      </div>
+    </div>
+    <img class="img shadow phone rise d3" src="img/club.jpg" alt="זוג יושב על הרצפה בין קרטונים בדירה החדשה">
+  </div>
+</section>
+
+<!-- 14 · מהלך 3 למה -->
+<section class="slide st">
+  <div class="inner">
+    <div class="eyebrow rise"><span class="tick"></span>מהלך 3 · למה דווקא עכשיו</div>
+    <h2 class="rise d1" style="margin-bottom:10px">למה משפיענים <span class="hl">שנמצאים במעבר?</span></h2>
+    <p class="lead rise d1" style="margin-bottom:20px">כי החיבור לא צריך להיות מומצא. הקהל כבר יודע שהיוצר עובר דירה, עוקב אחרי התהליך ורוצה לראות מה קורה הלאה.</p>
+    <div class="vs rise d2" style="margin-bottom:16px">
+      <div class="card"><span class="k" style="color:var(--muted)">במקום</span><span class="no">"היי חברים, רציתי לספר לכם על שירות..."</span></div>
+      <div class="card edge"><span class="k hl">אנחנו מקבלים</span>"מחר עוברים דירה ואני עוד לא ארזתי את המטבח."</div>
+    </div>
+    <div class="values rise d3">
+      <div class="card"><h3>הערך העסקי</h3><p>חשיפה של שלושת המותגים בתוך צורך צרכני אמיתי, ברגע שבו השירות רלוונטי במיוחד. עובדים עם יוצרים שונים לפי הזדמנויות, <b>בלי להתחייב מראש לפנים קבועות</b>.</p></div>
+      <div class="card"><h3>הערך הסושיאלי</h3><p>תוכן אותנטי יותר, קהלים חדשים בכל שיתוף פעולה, <b>כמה נקודות מגע לאורך תהליך שלם</b> ולא Reel פרסומי בודד.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- 15 · מהלך 4 -->
+<section class="slide pk">
+  <div class="inner media-split">
+    <div>
+      <div class="movehead rise"><span class="n">4</span><div><div class="eyebrow" style="margin:0">מהלך 4 מתוך 6</div><h2 style="margin:4px 0 0"><span class="hl">זה פרקטי</span> × GET</h2></div></div>
+      <div class="rise d1" style="display:flex;align-items:center;gap:14px;margin:14px 0 12px">
+        <img class="logo-round" src="img/praktilogo.jpg" alt="הלוגו של זה פרקטי">
+        <p class="statement" style="font-size:clamp(17px,1.8vw,22px)">שחר לוי: שותף תוכן קבוע לעולמות הבית, האריזה והאחסון.</p>
+      </div>
+      <p class="lead rise d1" style="margin-bottom:16px">היוצר וההנדימן שמאחורי "זה פרקטי": DIY, כלים, פתרונות לבית, סדר וארגון. הקהל שלו כבר מגיע אליו בשביל פתרונות פרקטיים, <b>בדיוק בסיטואציות שבהן Packing ו-Storage רלוונטיים</b>.</p>
+      <div class="statrow rise d2" style="margin-bottom:14px">
+        <div class="card kpi edge" style="padding:14px 10px"><div class="num" style="font-size:28px"><span class="count" data-to="450">0</span><span class="u">K+</span></div><div class="lbl">קהילה מצטברת</div></div>
+        <div class="card kpi" style="padding:14px 10px"><div class="num" style="font-size:28px"><span class="count" data-to="169">0</span><span class="u">K</span></div><div class="lbl">טיקטוק</div></div>
+        <div class="card kpi" style="padding:14px 10px"><div class="num" style="font-size:28px"><span class="count" data-to="134">0</span><span class="u">K</span></div><div class="lbl">אינסטגרם</div></div>
+        <div class="card kpi" style="padding:14px 10px"><div class="num" style="font-size:28px"><span class="count" data-to="105">0</span><span class="u">K</span></div><div class="lbl">פייסבוק</div></div>
+      </div>
+      <p class="footer-note rise d3" style="margin-top:0"><b style="color:var(--text)">הפעילות המוצעת:</b> שיתוף פעולה קבוע, חודשי או רבעוני, ולא סרטון חד-פעמי. בכל פרק שחר לוקח בעיה אמיתית מעולם המעבר ומראה איך לפתור אותה. <span style="opacity:.75">(נתוני קהל לפי אתר "זה פרקטי")</span></p>
+    </div>
+    <img class="img shadow phone rise d3" src="img/prakti.jpg" alt="אגודל למעלה מול קרטון Get Packing">
+  </div>
+</section>
+
+<!-- 16 · מהלך 4 הסדרה -->
+<section class="slide pk">
+  <div class="inner">
+    <div class="eyebrow rise"><span class="tick"></span>מהלך 4 · הסדרה</div>
+    <h2 class="rise d1" style="margin-bottom:10px">"זה פרקטי: <span class="hl">עוברים דירה</span>"</h2>
+    <p class="lead rise d1" style="margin-bottom:18px">במקום לבקש משחר להמליץ על GET, נבנה איתו סדרה שימושית שעומדת בפני עצמה. <b>המוצרים והשירותים של GET הם הכלים שבהם הוא פותר את הבעיה.</b></p>
+    <div class="cardrow rise d2" style="grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px">
+      <div class="card" style="padding:14px 18px"><h3 style="margin:0">איך אורזים טלוויזיה נכון?</h3></div>
+      <div class="card" style="padding:14px 18px"><h3 style="margin:0">איך מסמנים קרטונים כדי לא להשתגע בבית החדש?</h3></div>
+      <div class="card" style="padding:14px 18px"><h3 style="margin:0">5 דברים שלא כדאי לעשות ביום מעבר</h3></div>
+      <div class="card" style="padding:14px 18px"><h3 style="margin:0">איך מפרקים רהיט לפני הובלה?</h3></div>
+      <div class="card" style="padding:14px 18px"><h3 style="margin:0">מה באמת נכנס למחסן של X מ״ר?</h3></div>
+      <div class="card" style="padding:14px 18px"><h3 style="margin:0">איך מסדרים מחסן כך שבעוד חצי שנה עוד נמצא בו משהו?</h3></div>
+    </div>
+    <div class="values rise d3">
+      <div class="card"><h3>הערך העסקי</h3><p>GET מתחברת לדמות שנתפסת כפרקטית ומקצועית, מול קהל שבאמת צריך את המוצרים. סרטונים כאלה <b>ממשיכים לצבור צפיות חודשים אחרי הפרסום</b>.</p></div>
+      <div class="card"><h3>הערך הסושיאלי</h3><p>תוכן עם ערך גבוה של <b>Save ו-Share</b>. הצופה שומר את הסרטון לקראת המעבר הבא וחוזר אליו כשהשירות באמת רלוונטי.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- 17 · מהלך 5 -->
+<section class="slide st">
+  <div class="inner media-split">
+    <div>
+      <div class="movehead rise"><span class="n">5</span><div><div class="eyebrow" style="margin:0">מהלך 5 מתוך 6</div><h2 style="margin:4px 0 0">Get Storage: <span class="hl">הסיטקום</span></h2></div></div>
+      <p class="statement rise d1" style="margin:12px 0 14px">הבחור שגר במחסן מקבל שכנים.</p>
+      <ul class="clean rise d2">
+        <li><span class="mk">‹</span><span>הדמות הקיימת של Get Storage כבר נותנת למותג עולם תוכן מובהק. ב-2027 נהפוך את מתחם המחסנים ל<b>Sitcom עם קאסט קבוע</b>.</span></li>
+        <li><span class="mk">‹</span><span>הדייר שאנחנו מכירים נשאר במרכז, ופתאום מתגלה מי גר במחסנים לידו. <b>כולם עוברים לגור בגט סטורג׳.</b></span></li>
+        <li><span class="mk">‹</span><span>הדמויות חוזרות מפרק לפרק, ונוצרים ביניהן מערכות יחסים, ריבים, בדיחות וסיפורים מתמשכים.</span></li>
+      </ul>
+    </div>
+    <img class="img shadow phone rise d3" src="img/sitcom.jpg" alt="דיירים שונים יושבים יחד במתחם המחסנים של Get Storage">
+  </div>
+</section>
+
+<!-- 18 · מהלך 5 לוקיישן -->
+<section class="slide st">
+  <div class="inner">
+    <div class="eyebrow rise"><span class="tick"></span>מהלך 5 · מה משתנה</div>
+    <h2 class="rise d1" style="margin-bottom:10px">ממחסן <span class="hl">ללוקיישן של סדרה</span></h2>
+    <p class="lead rise d1" style="margin-bottom:18px">המחסן מפסיק להיות רק המוצר שצריך לדבר עליו, והופך לבמה שבה התוכן קורה. גישה, גודל, פרטיות, סדר ואחסון לטווח ארוך נכנסים לתסריט <b>בלי להפוך את הסרטון להסבר שירות</b>.</p>
+    <div class="flow rise d2" style="margin-bottom:18px">
+      <div class="step"><div class="t">הדמות הקיימת</div><div class="s">ממשיכה בתוכן השוטף</div></div>
+      <span class="arr">←</span>
+      <div class="step"><div class="t cs">דייר חדש</div><div class="s">נכנס אחת לתקופה</div></div>
+      <span class="arr">←</span>
+      <div class="step"><div class="t">מפגשים ו-Running Jokes</div><div class="s">שחוזרים מפרק לפרק</div></div>
+      <span class="arr">←</span>
+      <div class="step"><div class="t cs">ספין-אוף</div><div class="s">לדמויות שמצליחות במיוחד</div></div>
+    </div>
+    <div class="values rise d3">
+      <div class="card"><h3>הערך העסקי</h3><p>יותר סיטואציות להצגת השירות וסוגי השימוש במחסן, ו<b>נכס מותג שממשיך להתפתח</b> במקום להמציא כל חודש שמונה רעיונות נפרדים.</p></div>
+      <div class="card"><h3>הערך הסושיאלי</h3><p>Recurring Cast מייצר היכרות, המשכיות ובדיחות פנימיות. בשלב הזה אנשים כבר <b>עוקבים אחרי סדרה</b>, לא רק צופים בתוכן של מותג.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- 19 · מהלך 6 -->
+<section class="slide pk">
+  <div class="inner media-split">
+    <div>
+      <div class="movehead rise"><span class="n">6</span><div><div class="eyebrow" style="margin:0">מהלך 6 מתוך 6</div><h2 style="margin:4px 0 0"><span class="hl">אוגי</span> מתארח</h2></div></div>
+      <p class="statement rise d1" style="margin:12px 0 12px">הפודקאסט שאף אחד לא ביקש מאוגר לפתוח, אבל כולם ירצו לראות.</p>
+      <p class="lead rise d1" style="margin-bottom:16px">בכל פרק משפיען, סלב או קומיקאי מתיישב מול אוגי. הטוויסט: <b>האורח מראיין את אוגי</b>. אוגי בטוח שהוא הכוכב, ובדרך מופרכת לגמרי כל תשובה שלו מגיעה לקרטונים, לפצפצים או ל-Get Packing. המותג נכנס דרך הפאנץ׳.</p>
+      <div class="chat rise d2">
+        <div class="bubble q">אוגי, מה אתה עושה אחרי פרידה?</div>
+        <div class="bubble a">מחזיר לה את הדברים שלה. בקרטון דו-גלי. אני אוגר, לא מפלצת.</div>
+        <div class="bubble q">מה הדבר שהכי מפחיד אותך?</div>
+        <div class="bubble a">אנשים שאורזים כוסות בלי פצפצים. איך אפשר לסמוך על אנשים כאלה?</div>
+      </div>
+    </div>
+    <img class="img shadow phone rise d3" src="img/oogi.jpg" alt="אוגי עם אוזניות מול מיקרופון באולפן הפודקאסט">
+  </div>
+</section>
+
+<!-- 20 · מהלך 6 פינות -->
+<section class="slide pk">
+  <div class="inner">
+    <div class="eyebrow rise"><span class="tick"></span>מהלך 6 · הפורמט</div>
+    <h2 class="rise d1" style="margin-bottom:10px">לבנות את אוגי <span class="hl">כאישיות, לא רק כקמע</span></h2>
+    <p class="lead rise d1" style="margin-bottom:18px">עם הזמן הקהל ילמד מי זה אוגי, מה הוא אוהב, מה מעצבן אותו ומה הוא חושב על העולם.</p>
+    <div class="mini rise d2" style="margin-bottom:10px">פינות קבועות</div>
+    <div class="cardrow rise d2" style="grid-template-columns:repeat(4,1fr);margin-bottom:16px">
+      <div class="card edge"><h3>לארוז או לזרוק?</h3><p>האורח זורק לאוגי אנשים, חפצים וטרנדים, ואוגי מחליט.</p></div>
+      <div class="card"><h3>אוגי פותר</h3><p>האורח מציג בעיה אמיתית, ואוגי נותן לה פתרון מפוקפק.</p></div>
+      <div class="card"><h3>שאלת הקהל</h3><p>שאלה שנבחרה מהתגובות.</p></div>
+      <div class="card"><h3>ארגז אחד</h3><p>"אם היית עובר מחר ויכול לקחת רק ארגז אחד, מה היית מכניס אליו?"</p></div>
+    </div>
+    <div class="values rise d3">
+      <div class="card"><h3>הערך העסקי</h3><p>אוגי הופך לנכס מותג משמעותי שאפשר לחבר אליו אורחים וקהלים חדשים, <b>גם בעמודים של המפורסמים והמשפיענים</b>.</p></div>
+      <div class="card"><h3>הערך הסושיאלי</h3><p>Get Packing מקבלת דרך לדבר על מגוון רחב של מוצרים וסיטואציות <b>בלי לחזור שוב ושוב על סרטוני מוצר</b>.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- 21 · תודה -->
+<section class="slide">
+  <div class="inner" style="text-align:center">
+    <h1 class="rise" style="margin-bottom:18px">תודה <span class="cp">שהקשבתם</span></h1>
+    <p class="lead rise d1" style="margin:0 auto 26px">מוכנים להמראה? נשמח לצאת יחד ל-2027.</p>
+    <div class="arrowheads rise d2"><span class="cp">‹‹</span><span class="t">Get Packing · Get Moving · Get Storage</span><span class="cs">››</span></div>
+  </div>
+</section>
+
+</div>
+
+<div class="bottombar">
+  <div class="counter"><b id="cur">1</b> / <span id="total">21</span></div>
+  <div class="hint">ניווט: חצים במקלדת · רווח לשקף הבא</div>
+  <div class="navbtns">
+    <button class="navbtn" id="prevBtn" aria-label="שקף קודם">›</button>
+    <button class="navbtn" id="nextBtn" aria-label="שקף הבא">‹</button>
+  </div>
+</div>
+
+<script>
+const slides=[...document.querySelectorAll('.slide')],total=slides.length;
+document.getElementById('total').textContent=total;let cur=0;const counted=new Set();
+const reduce=matchMedia('(prefers-reduced-motion:reduce)').matches;
+function fmt(v,dec,sep){let s=v.toFixed(dec);if(sep)s=Number(s).toLocaleString('en-US');return s}
+function runCounters(slide){slide.querySelectorAll('.count').forEach(el=>{if(counted.has(el))return;counted.add(el);
+  const to=parseFloat(el.dataset.to),dec=parseInt(el.dataset.dec||0),sep=el.dataset.sep;
+  if(reduce){el.textContent=fmt(to,dec,sep);return}
+  const t0=performance.now(),dur=1400;
+  (function f(t){const p=Math.min(1,(t-t0)/dur);el.textContent=fmt(to*(1-Math.pow(1-p,3)),dec,sep);if(p<1)requestAnimationFrame(f)})(t0)})}
+function go(i){cur=Math.max(0,Math.min(total-1,i));slides.forEach((s,k)=>s.classList.toggle('active',k===cur));
+  document.getElementById('cur').textContent=cur+1;document.getElementById('progress').style.width=((cur+1)/total*100)+'%';runCounters(slides[cur])}
+document.getElementById('nextBtn').onclick=()=>go(cur+1);document.getElementById('prevBtn').onclick=()=>go(cur-1);
+addEventListener('keydown',e=>{if(['ArrowLeft','PageDown',' '].includes(e.key)){e.preventDefault();go(cur+1)}else if(['ArrowRight','PageUp'].includes(e.key)){e.preventDefault();go(cur-1)}else if(e.key==='Home')go(0);else if(e.key==='End')go(total-1)});
+let tx=null;addEventListener('touchstart',e=>tx=e.touches[0].clientX,{passive:true});
+addEventListener('touchend',e=>{if(tx===null)return;const dx=e.changedTouches[0].clientX-tx;if(Math.abs(dx)>60)go(cur+(dx>0?1:-1));tx=null},{passive:true});
+go(0);
+/* star field */
+(function(){const c=document.getElementById('stars'),x=c.getContext('2d');let st=[];
+  function size(){const d=devicePixelRatio||1;c.width=innerWidth*d;c.height=innerHeight*d;x.setTransform(d,0,0,d,0,0);
+    st=Array.from({length:Math.round(innerWidth*innerHeight/9000)},()=>({x:Math.random()*innerWidth,y:Math.random()*innerHeight,r:Math.random()*1.2+.2,p:Math.random()*6.28,s:.4+Math.random()}))}
+  function draw(t){x.clearRect(0,0,innerWidth,innerHeight);for(const s of st){const a=reduce?.55:.3+.45*(.5+.5*Math.sin(t/1000*s.s+s.p));x.globalAlpha=a;x.fillStyle='#DCE6FF';x.beginPath();x.arc(s.x,s.y,s.r,0,6.28);x.fill()}
+    if(!reduce)requestAnimationFrame(draw)}
+  size();addEventListener('resize',()=>{size();if(reduce)draw(0)});requestAnimationFrame(draw)})();
+</script>
+</body>
+</html>
